@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.5'
+          cache: true
+
+      - name: Build Binaries
+        run: |
+          mkdir -p dist
+          # Build for Linux
+          GOOS=linux GOARCH=amd64 make build
+          mv dwnld dist/dwnld-linux-amd64
+          # Build for macOS (Intel)
+          GOOS=darwin GOARCH=amd64 make build
+          mv dwnld dist/dwnld-darwin-amd64
+          # Build for macOS (Apple Silicon)
+          GOOS=darwin GOARCH=arm64 make build
+          mv dwnld dist/dwnld-darwin-arm64
+          # Build for Windows
+          GOOS=windows GOARCH=amd64 make build
+          mv dwnld.exe dist/dwnld-windows-amd64.exe
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag_name="${GITHUB_REF#refs/tags/}"
+          gh release create "$tag_name" ./dist/* \
+            --title "$tag_name" \
+            --generate-notes

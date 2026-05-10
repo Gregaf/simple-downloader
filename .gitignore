@@ -1,0 +1,9 @@
+# Binaries
+dwnld
+
+# OS metadata
+.DS_Store
+
+# Downloads
+snes/
+*.zip
