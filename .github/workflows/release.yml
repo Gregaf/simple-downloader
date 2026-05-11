@@ -37,7 +37,7 @@ jobs:
           mv dwnld dist/dwnld-darwin-arm64
           # Build for Windows
           GOOS=windows GOARCH=amd64 make build
-          mv dwnld.exe dist/dwnld-windows-amd64.exe
+          mv dwnld dist/dwnld-windows-amd64.exe
 
       - name: Create Release
         env:
