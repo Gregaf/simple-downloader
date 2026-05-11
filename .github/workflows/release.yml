@@ -43,7 +43,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag_name="${GITHUB_REF#refs/tags/}"
+          tag_name="${{ github.event.inputs.tag }}"
+          if [ -z "$tag_name" ]; then
+            tag_name="${GITHUB_REF#refs/tags/}"
+          fi
+          
+          if [[ "$tag_name" == refs/heads/* ]]; then
+            echo "Error: Manual run must specify a tag or be run against a tag ref."
+            exit 1
+          fi
+
           gh release create "$tag_name" ./dist/* \
             --title "$tag_name" \
             --generate-notes
